@@ -5,7 +5,8 @@ import playwright, { Browser } from 'playwright';
 import log4js from 'log4js';
 import dayjs from 'dayjs';
 import utc from "dayjs/plugin/utc.js";
-import path from 'path';
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 type Poi = {
   id?: string;
@@ -52,7 +53,7 @@ log4js.configure({
     },
     slack: {
       type: '@log4js-node/slack',
-      token: 'xoxb-3225409639990-7720763023124-eZMWobFMlLUvtf4kYEwTWxqI',
+      token: process.env.SLACK_BOT_TOKEN,
       channel_id: 'C07M46S48H0',
       username: 'クローラーボット',
       layout: {
@@ -102,7 +103,6 @@ const getPageUrls = async (browser: Browser): Promise<Array<string>> => {
   try {
     const context = await browser.newContext();
     const page = await context.newPage();
-
     const now = dayjs(new Date())
 
     const pageUrls = await getPageUrls(browser)
