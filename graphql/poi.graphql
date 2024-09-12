@@ -1,0 +1,36 @@
+mutation InsertPoi($object: poi_insert_input!) {
+  insert_poi_one(object: $object) {
+    id
+  }
+}
+
+mutation UpdatePoi($id: uuid!, $objects: [poi_photo_insert_input!]!, $_set: poi_set_input!) {
+  delete_poi_photo(where: {parent_id: {_eq: $id}}) {
+    affected_rows
+  }
+  insert_poi_photo(objects: $objects) {
+    affected_rows
+  }
+  update_poi_by_pk(pk_columns: {id: $id}, _set: $_set) {
+    id
+  }
+}
+
+query CreatedPoi($createdAt: timestamp!) {
+  newPoi: poi(where: {created_at: {_eq: $createdAt}}) {
+    id
+    name
+    address
+    photos(order_by: {order_no: asc}) {
+      image
+    }
+  }
+  discontinuePoi: poi(where: {modified_at: {_lt: $createdAt}}) {
+    id
+    name
+    address
+    photos(order_by: {order_no: asc}) {
+      image
+    }
+  }
+}

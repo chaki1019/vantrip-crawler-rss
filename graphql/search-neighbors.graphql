@@ -1,0 +1,40 @@
+query SearchNeighbors(
+  $lat: numeric,
+  $lng: numeric,
+  $distance: Int
+) {
+  search_neighbors(args: {
+    pdistance: $distance,
+    plat: $lat,
+    plng: $lng
+  }, where: {
+    _and: {
+      is_deleted: {
+        _eq: false
+      },
+      category: {
+        _eq: "rss"
+      }
+    }
+  }) {
+    id
+    category
+    lat
+    lng
+    name
+    description
+    tel
+    url
+    open_time
+    holiday
+    price
+    toilet
+    address
+    is_deleted
+    is_warning
+    photos(order_by: {order_no: asc}) {
+      image
+      order_no
+    }
+  }
+}
