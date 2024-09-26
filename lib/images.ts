@@ -1,15 +1,22 @@
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { S3 } from "./s3-client.js";
 import crypto from "crypto";
+import log4js from 'log4js';
+import { setTimeout } from "timers/promises";
 
-export const imageUpload = async (urls: Array<string>): Promise<Array<string>> => {
+const logger = log4js.getLogger();
+logger.level = 'all'
 
-  let imageIds = []
+export const imageUpload = async (urls: Array<string>): Promise<Array<{id: string, size: number, url: string}>> => {
+
+  const images = []
   for (let i = 0; i < urls.length; i++) {
     // photoURLがある場合はファイルをダウンロードしてCloudflare Imagesへアップロードする
+    logger.debug(`Image fetch url: ${urls[i]}`)
     let response = await fetch(urls[i]);
     const contentType = response.headers.get("Content-Type");
     const ab = await response.arrayBuffer();
+    // logger.debug(`Image fetched size: ${ab.byteLength / 1024}`)
 
     const imageId = crypto.randomUUID()
     await S3.send(
@@ -21,10 +28,12 @@ export const imageUpload = async (urls: Array<string>): Promise<Array<string>> =
       })
     )
 
-    imageIds.push(imageId)
+    images.push({id: imageId, size: ab.byteLength, url: urls[i]})
+
+    await setTimeout(500)
   }
 
-  return imageIds
+  return images
 }
 
 export const imageDelete = async (ids: Array<string>): Promise<void> => {

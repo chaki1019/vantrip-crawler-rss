@@ -9634,36 +9634,38 @@ export type Uuid_Comparison_Exp = {
   _nin?: InputMaybe<Array<Scalars["uuid"]["input"]>>;
 };
 
-export type InsertPoiMutationVariables = Exact<{
-  object: Poi_Insert_Input;
+export type InsertAndUpdatePoiMutationVariables = Exact<{
+  insertObjects: Array<Poi_Insert_Input> | Poi_Insert_Input;
+  updates: Array<Poi_Updates> | Poi_Updates;
+  deletePhotoParentIds:
+    | Array<Scalars["uuid"]["input"]>
+    | Scalars["uuid"]["input"];
+  insertPhotos: Array<Poi_Photo_Insert_Input> | Poi_Photo_Insert_Input;
 }>;
 
-export type InsertPoiMutation = {
-  __typename?: "mutation_root";
-  insert_poi_one?: { __typename?: "poi"; id: string } | null;
-};
-
-export type UpdatePoiMutationVariables = Exact<{
-  id: Scalars["uuid"]["input"];
-  objects: Array<Poi_Photo_Insert_Input> | Poi_Photo_Insert_Input;
-  _set: Poi_Set_Input;
-}>;
-
-export type UpdatePoiMutation = {
+export type InsertAndUpdatePoiMutation = {
   __typename?: "mutation_root";
   delete_poi_photo?: {
     __typename?: "poi_photo_mutation_response";
     affected_rows: number;
   } | null;
+  insert_poi?: {
+    __typename?: "poi_mutation_response";
+    affected_rows: number;
+  } | null;
+  update_poi_many?: Array<{
+    __typename?: "poi_mutation_response";
+    affected_rows: number;
+  } | null> | null;
   insert_poi_photo?: {
     __typename?: "poi_photo_mutation_response";
     affected_rows: number;
   } | null;
-  update_poi_by_pk?: { __typename?: "poi"; id: string } | null;
 };
 
 export type CreatedPoiQueryVariables = Exact<{
   createdAt: Scalars["timestamp"]["input"];
+  category: Scalars["String"]["input"];
 }>;
 
 export type CreatedPoiQuery = {
@@ -9684,10 +9686,46 @@ export type CreatedPoiQuery = {
   }>;
 };
 
+export type CategoryPoiQueryVariables = Exact<{
+  category: Scalars["String"]["input"];
+}>;
+
+export type CategoryPoiQuery = {
+  __typename?: "query_root";
+  poi: Array<{
+    __typename?: "poi";
+    id: string;
+    category: string;
+    lat: number;
+    lng: number;
+    name: string;
+    description?: string | null;
+    tel?: string | null;
+    url?: string | null;
+    open_time?: string | null;
+    holiday?: string | null;
+    price?: string | null;
+    toilet?: string | null;
+    address?: string | null;
+    is_deleted: boolean;
+    is_warning: boolean;
+    created_by: string;
+    created_at: string;
+    modified_by: string;
+    modified_at: string;
+    photos: Array<{
+      __typename?: "poi_photo";
+      image: string;
+      order_no: number;
+    }>;
+  }>;
+};
+
 export type SearchNeighborsQueryVariables = Exact<{
   lat?: InputMaybe<Scalars["numeric"]["input"]>;
   lng?: InputMaybe<Scalars["numeric"]["input"]>;
   distance?: InputMaybe<Scalars["Int"]["input"]>;
+  category?: InputMaybe<Scalars["String"]["input"]>;
 }>;
 
 export type SearchNeighborsQuery = {
@@ -9709,6 +9747,10 @@ export type SearchNeighborsQuery = {
     address?: string | null;
     is_deleted: boolean;
     is_warning: boolean;
+    created_by: string;
+    created_at: string;
+    modified_by: string;
+    modified_at: string;
     photos: Array<{
       __typename?: "poi_photo";
       image: string;
@@ -9735,35 +9777,28 @@ export class TypedDocumentString<TResult, TVariables>
   }
 }
 
-export const InsertPoiDocument = new TypedDocumentString(`
-    mutation InsertPoi($object: poi_insert_input!) {
-  insert_poi_one(object: $object) {
-    id
+export const InsertAndUpdatePoiDocument = new TypedDocumentString(`
+    mutation InsertAndUpdatePoi($insertObjects: [poi_insert_input!]!, $updates: [poi_updates!]!, $deletePhotoParentIds: [uuid!]!, $insertPhotos: [poi_photo_insert_input!]!) {
+  delete_poi_photo(where: {parent_id: {_in: $deletePhotoParentIds}}) {
+    affected_rows
+  }
+  insert_poi(objects: $insertObjects) {
+    affected_rows
+  }
+  update_poi_many(updates: $updates) {
+    affected_rows
+  }
+  insert_poi_photo(objects: $insertPhotos) {
+    affected_rows
   }
 }
     `) as unknown as TypedDocumentString<
-  InsertPoiMutation,
-  InsertPoiMutationVariables
->;
-export const UpdatePoiDocument = new TypedDocumentString(`
-    mutation UpdatePoi($id: uuid!, $objects: [poi_photo_insert_input!]!, $_set: poi_set_input!) {
-  delete_poi_photo(where: {parent_id: {_eq: $id}}) {
-    affected_rows
-  }
-  insert_poi_photo(objects: $objects) {
-    affected_rows
-  }
-  update_poi_by_pk(pk_columns: {id: $id}, _set: $_set) {
-    id
-  }
-}
-    `) as unknown as TypedDocumentString<
-  UpdatePoiMutation,
-  UpdatePoiMutationVariables
+  InsertAndUpdatePoiMutation,
+  InsertAndUpdatePoiMutationVariables
 >;
 export const CreatedPoiDocument = new TypedDocumentString(`
-    query CreatedPoi($createdAt: timestamp!) {
-  newPoi: poi(where: {created_at: {_eq: $createdAt}}) {
+    query CreatedPoi($createdAt: timestamp!, $category: String!) {
+  newPoi: poi(where: {category: {_eq: $category}, created_at: {_eq: $createdAt}}) {
     id
     name
     address
@@ -9771,7 +9806,9 @@ export const CreatedPoiDocument = new TypedDocumentString(`
       image
     }
   }
-  discontinuePoi: poi(where: {modified_at: {_lt: $createdAt}}) {
+  discontinuePoi: poi(
+    where: {category: {_eq: $category}, modified_at: {_lt: $createdAt}}
+  ) {
     id
     name
     address
@@ -9784,11 +9821,43 @@ export const CreatedPoiDocument = new TypedDocumentString(`
   CreatedPoiQuery,
   CreatedPoiQueryVariables
 >;
+export const CategoryPoiDocument = new TypedDocumentString(`
+    query CategoryPoi($category: String!) {
+  poi(where: {category: {_eq: $category}, url: {_is_null: false}}) {
+    id
+    category
+    lat
+    lng
+    name
+    description
+    tel
+    url
+    open_time
+    holiday
+    price
+    toilet
+    address
+    is_deleted
+    is_warning
+    photos(order_by: {order_no: asc}) {
+      image
+      order_no
+    }
+    created_by
+    created_at
+    modified_by
+    modified_at
+  }
+}
+    `) as unknown as TypedDocumentString<
+  CategoryPoiQuery,
+  CategoryPoiQueryVariables
+>;
 export const SearchNeighborsDocument = new TypedDocumentString(`
-    query SearchNeighbors($lat: numeric, $lng: numeric, $distance: Int) {
+    query SearchNeighbors($lat: numeric, $lng: numeric, $distance: Int, $category: String) {
   search_neighbors(
     args: {pdistance: $distance, plat: $lat, plng: $lng}
-    where: {_and: {is_deleted: {_eq: false}, category: {_eq: "rss"}}}
+    where: {_and: {is_deleted: {_eq: false}, category: {_eq: $category}}}
   ) {
     id
     category
@@ -9809,6 +9878,10 @@ export const SearchNeighborsDocument = new TypedDocumentString(`
       image
       order_no
     }
+    created_by
+    created_at
+    modified_by
+    modified_at
   }
 }
     `) as unknown as TypedDocumentString<

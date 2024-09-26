@@ -1,23 +1,24 @@
-mutation InsertPoi($object: poi_insert_input!) {
-  insert_poi_one(object: $object) {
-    id
+mutation InsertAndUpdatePoi(
+  $insertObjects: [poi_insert_input!]!,
+  $updates: [poi_updates!]!,
+  $deletePhotoParentIds: [uuid!]!,
+  $insertPhotos: [poi_photo_insert_input!]!) {
+  delete_poi_photo(where: {parent_id: {_in: $deletePhotoParentIds}}) {
+    affected_rows
+  }
+  insert_poi(objects: $insertObjects) {
+    affected_rows
+  }
+  update_poi_many(updates: $updates) {
+    affected_rows
+  }
+  insert_poi_photo(objects: $insertPhotos) {
+    affected_rows
   }
 }
 
-mutation UpdatePoi($id: uuid!, $objects: [poi_photo_insert_input!]!, $_set: poi_set_input!) {
-  delete_poi_photo(where: {parent_id: {_eq: $id}}) {
-    affected_rows
-  }
-  insert_poi_photo(objects: $objects) {
-    affected_rows
-  }
-  update_poi_by_pk(pk_columns: {id: $id}, _set: $_set) {
-    id
-  }
-}
-
-query CreatedPoi($createdAt: timestamp!) {
-  newPoi: poi(where: {created_at: {_eq: $createdAt}}) {
+query CreatedPoi($createdAt: timestamp!, $category: String!) {
+  newPoi: poi(where: {category: {_eq: $category}, created_at: {_eq: $createdAt}}) {
     id
     name
     address
@@ -25,12 +26,40 @@ query CreatedPoi($createdAt: timestamp!) {
       image
     }
   }
-  discontinuePoi: poi(where: {modified_at: {_lt: $createdAt}}) {
+  discontinuePoi: poi(where: {category: {_eq: $category}, modified_at: {_lt: $createdAt}}) {
     id
     name
     address
     photos(order_by: {order_no: asc}) {
       image
     }
+  }
+}
+
+query CategoryPoi($category: String!) {
+  poi(where: {category: {_eq: $category}, url: {_is_null: false}}) {
+    id
+    category
+    lat
+    lng
+    name
+    description
+    tel
+    url
+    open_time
+    holiday
+    price
+    toilet
+    address
+    is_deleted
+    is_warning
+    photos(order_by: {order_no: asc}) {
+      image
+      order_no
+    }
+    created_by
+    created_at
+    modified_by
+    modified_at
   }
 }

@@ -1,7 +1,8 @@
 query SearchNeighbors(
   $lat: numeric,
   $lng: numeric,
-  $distance: Int
+  $distance: Int,
+  $category: String,
 ) {
   search_neighbors(args: {
     pdistance: $distance,
@@ -13,7 +14,7 @@ query SearchNeighbors(
         _eq: false
       },
       category: {
-        _eq: "rss"
+        _eq: $category
       }
     }
   }) {
@@ -36,5 +37,9 @@ query SearchNeighbors(
       image
       order_no
     }
+    created_by
+    created_at
+    modified_by
+    modified_at
   }
 }
