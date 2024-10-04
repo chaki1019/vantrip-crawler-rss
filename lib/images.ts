@@ -9,7 +9,11 @@ logger.level = 'all'
 
 export const imageUpload = async (urls: Array<string>): Promise<Array<{id: string, size: number, url: string}>> => {
 
-  const images = []
+  const images: Array<{
+    id: string
+    size: number
+    url: string
+  }> = []
   for (let i = 0; i < urls.length; i++) {
     // photoURLがある場合はファイルをダウンロードしてCloudflare Imagesへアップロードする
     logger.debug(`Image fetch url: ${urls[i]}`)
@@ -18,17 +22,29 @@ export const imageUpload = async (urls: Array<string>): Promise<Array<{id: strin
     const ab = await response.arrayBuffer();
     // logger.debug(`Image fetched size: ${ab.byteLength / 1024}`)
 
+    // メタデータに画像URL残しておく
+    let sourceUrl = urls[i]
+    const imageUrl = new URL(urls[i])
+    const matched = imageUrl.pathname.match(/\.(jpg|jpeg|gif|png|tiff|bmp|svg|webp)$/i)
+    if (matched?.[1]) {
+      // Pathname末尾が画像拡張子の場合は何らかのパラメータがついていてもキャッシュ回避の無意味なパラメータとして除外する
+      sourceUrl = `${imageUrl.origin}${imageUrl.pathname}`
+    }
+
     const imageId = crypto.randomUUID()
     await S3.send(
       new PutObjectCommand({
         Body: Buffer.from(ab),
         Bucket: 'vantrip',
         Key: `images/${imageId}`,
-        ContentType: contentType!
+        ContentType: contentType!,
+        Metadata: {
+          'source': sourceUrl
+        }
       })
     )
 
-    images.push({id: imageId, size: ab.byteLength, url: urls[i]})
+    images.push({id: imageId as string, size: ab.byteLength, url: urls[i]})
 
     await setTimeout(500)
   }

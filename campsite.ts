@@ -1,7 +1,7 @@
 import { imageDelete, imageUpload } from './lib/images.js';
 import { CategoryPoiDocument, CategoryPoiQuery, CategoryPoiQueryVariables, CreatedPoiDocument, CreatedPoiQuery, CreatedPoiQueryVariables, InsertAndUpdatePoiDocument, InsertAndUpdatePoiMutation, InsertAndUpdatePoiMutationVariables, SearchNeighborsDocument, SearchNeighborsQuery, SearchNeighborsQueryVariables } from './__generated/graphql.js';
 import { client } from './lib/graphql-client.js';
-import playwright, { Browser } from 'playwright';
+import playwright from 'playwright';
 import log4js from 'log4js';
 import dayjs from 'dayjs';
 import utc from "dayjs/plugin/utc.js";
@@ -68,7 +68,7 @@ const csvWriter = createObjectCsvWriter({
 })
 
 const format = (content: string): string => {
-  let text = content.replaceAll(/<[Bb][Rr](\s+\/)?>/ig, '\n').replaceAll(/<[^>]+>/g, '').replaceAll(/[ 　]{2,}/g, ' ')
+  let text = content.replace(/<[Bb][Rr](\s+\/)?>/ig, '\n').replace(/<[^>]+>/g, '').replace(/[ 　]{2,}/g, ' ')
   return decode(text.trim())
 }
 
@@ -120,7 +120,7 @@ const getPageUrls = async (): Promise<Array<string>> => {
     // 各URLのページを取得して中身を取得
     for (let i = 0; i < pageUrls.length; i++) {
       const url = pageUrls[i]
-      await page.goto(url, {timeout: 1800000})
+      await page.goto(url, {timeout: 180000})
       // await page.screenshot({path: 'test.png', fullPage: true})
       const name = (await page.locator('[class^=CampsiteDetail_site-name]').textContent())?.trim()
       const description = format(await page.locator('[class^=CampsiteDetail_site-main]').first().innerHTML())

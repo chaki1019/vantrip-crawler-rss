@@ -9686,11 +9686,11 @@ export type CreatedPoiQuery = {
   }>;
 };
 
-export type CategoryPoiQueryVariables = Exact<{
-  category: Scalars["String"]["input"];
+export type PoiQueryVariables = Exact<{
+  where: Poi_Bool_Exp;
 }>;
 
-export type CategoryPoiQuery = {
+export type PoiQuery = {
   __typename?: "query_root";
   poi: Array<{
     __typename?: "poi";
@@ -9821,9 +9821,9 @@ export const CreatedPoiDocument = new TypedDocumentString(`
   CreatedPoiQuery,
   CreatedPoiQueryVariables
 >;
-export const CategoryPoiDocument = new TypedDocumentString(`
-    query CategoryPoi($category: String!) {
-  poi(where: {category: {_eq: $category}, url: {_is_null: false}}) {
+export const PoiDocument = new TypedDocumentString(`
+    query Poi($where: poi_bool_exp!) {
+  poi(where: $where) {
     id
     category
     lat
@@ -9849,10 +9849,7 @@ export const CategoryPoiDocument = new TypedDocumentString(`
     modified_at
   }
 }
-    `) as unknown as TypedDocumentString<
-  CategoryPoiQuery,
-  CategoryPoiQueryVariables
->;
+    `) as unknown as TypedDocumentString<PoiQuery, PoiQueryVariables>;
 export const SearchNeighborsDocument = new TypedDocumentString(`
     query SearchNeighbors($lat: numeric, $lng: numeric, $distance: Int, $category: String) {
   search_neighbors(

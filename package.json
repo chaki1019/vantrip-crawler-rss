@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.649.0",
+    "@googlemaps/google-maps-services-js": "^3.4.0",
     "@log4js-node/slack": "^1.0.0",
     "@playwright/test": "^1.47.2",
     "csv-writer": "^1.6.0",

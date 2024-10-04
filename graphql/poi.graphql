@@ -36,8 +36,8 @@ query CreatedPoi($createdAt: timestamp!, $category: String!) {
   }
 }
 
-query CategoryPoi($category: String!) {
-  poi(where: {category: {_eq: $category}, url: {_is_null: false}}) {
+query Poi($where: poi_bool_exp!) {
+  poi(where: $where) {
     id
     category
     lat
