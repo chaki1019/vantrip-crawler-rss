@@ -14,7 +14,6 @@ dotenv.config()
 dayjs.extend(utc)
 
 const NOW = dayjs(new Date())
-const KEY = 'AIzaSyCrJc2YB19U819VmVhakp_Mltv7l0xO9R0'
 
 const logger = log4js.getLogger();
 logger.level = 'all'

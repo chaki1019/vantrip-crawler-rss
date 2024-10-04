@@ -17,7 +17,6 @@ dayjs.extend(utc)
 
 const BASE_URL = 'https://www.driveplaza.com'
 const NOW = dayjs(new Date())
-const KEY = 'AIzaSyCrJc2YB19U819VmVhakp_Mltv7l0xO9R0'
 
 const logger = log4js.getLogger();
 logger.level = 'all'
@@ -154,7 +153,7 @@ const getHanshin = async (): Promise<Array<SAPA>> => {
       }
     } = await google.reverseGeocode({
       params: {
-        key: KEY,
+        key: process.env.GOOGLE_MAPS_API_KEY!,
         language: Language.ja,
         result_type: [AddressType.point_of_interest],
         latlng: {
@@ -373,7 +372,7 @@ const getSAPA = async (): Promise<Array<SAPA>> => {
         }
         const places = await google.findPlaceFromText({
           params: {
-            key: KEY,
+            key: process.env.GOOGLE_MAPS_API_KEY!,
             inputtype: PlaceInputType.textQuery,
             input: sapa.name,
             language: Language.ja,
