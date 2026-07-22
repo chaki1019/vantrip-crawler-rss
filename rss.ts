@@ -6,7 +6,7 @@ import log4js from 'log4js';
 import dayjs from 'dayjs';
 import utc from "dayjs/plugin/utc.js";
 import * as dotenv from 'dotenv'
-import { Poi } from './type/poi.js';
+import { Poi } from './type';
 import { createObjectCsvWriter } from 'csv-writer';
 dotenv.config()
 dayjs.extend(utc)

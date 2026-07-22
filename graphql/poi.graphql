@@ -17,6 +17,18 @@ mutation InsertAndUpdatePoi(
   }
 }
 
+mutation InsertSinglePoi($object: poi_insert_input!) {
+  insert_poi_one(object: $object) {
+    id
+  }
+}
+
+mutation UpdateSinglePoiLatLng($id: uuid!, $lat: numeric!, $lng: numeric!, $modified_at: timestamp!) {
+  update_poi_by_pk(pk_columns: {id: $id}, _set: {lat: $lat, lng: $lng, modified_at: $modified_at}) {
+    id
+  }
+}
+
 query CreatedPoi($createdAt: timestamp!, $category: String!) {
   newPoi: poi(where: {category: {_eq: $category}, created_at: {_eq: $createdAt}}) {
     id
@@ -38,6 +50,34 @@ query CreatedPoi($createdAt: timestamp!, $category: String!) {
 
 query Poi($where: poi_bool_exp!) {
   poi(where: $where) {
+    id
+    category
+    lat
+    lng
+    name
+    description
+    tel
+    url
+    open_time
+    holiday
+    price
+    toilet
+    address
+    is_deleted
+    is_warning
+    photos(order_by: {order_no: asc}) {
+      image
+      order_no
+    }
+    created_by
+    created_at
+    modified_by
+    modified_at
+  }
+}
+
+query CategoryPoi($category: String!) {
+  poi(where: {category: {_eq: $category}, is_deleted: {_eq: false}}) {
     id
     category
     lat

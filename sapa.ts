@@ -9,7 +9,7 @@ import utc from "dayjs/plugin/utc.js";
 import * as dotenv from 'dotenv'
 import { setTimeout } from 'timers/promises';
 import { createObjectCsvWriter } from 'csv-writer';
-import { Poi } from './type/poi.js';
+import { Poi } from './type';
 import { AddressType, Client, Language, Place, PlaceData, PlaceInputType } from '@googlemaps/google-maps-services-js';
 
 dotenv.config()

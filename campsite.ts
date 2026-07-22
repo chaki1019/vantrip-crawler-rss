@@ -9,7 +9,7 @@ import * as dotenv from 'dotenv'
 import { decode } from 'html-entities';
 import { setTimeout } from 'timers/promises';
 import { createObjectCsvWriter } from 'csv-writer';
-import { Poi } from './type/poi.js';
+import { Poi } from './type';
 
 dotenv.config()
 dayjs.extend(utc)
